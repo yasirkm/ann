@@ -2,6 +2,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 from data import preprocessed
 
@@ -9,11 +10,24 @@ DATA_PATH = Path(__file__).parent / 'audit_data' / 'audit_risk.csv'
 COLUMNS = ['LOCATION_ID', 'PARA_A', 'Score_A', 'Risk_A', 'PARA_B', 'Score_B', 'Risk_B', 'TOTAL', 'Money_Value', 'Risk']
 
 def main():
-    data = preprocessed(DATA_PATH, COLUMNS)
+    show_graphs()
+    show_graphs(preprocess=True)
 
+def show_graphs(data_path=DATA_PATH, cols=COLUMNS, preprocess=False):
+    '''
+        Shows 2D and 3D graph of audit_risk data
+    '''
+    # Reading data file
+    if preprocess:
+        data = preprocessed(data_path, cols)
+    else:
+        data = pd.read_csv(data_path)
+    
+    # Separating data to risky and safe date with the use of the Risk column
     risky = data[data.Risk == 1]
     safe = data[data.Risk == 0]
-    fig1, axs = plt.subplots(2,2)
+    fig, axs = plt.subplots(2,2)
+    fig.suptitle("2D Graphs")
 
     # Scatterplot for TOTAL, Money_Value, and Risk
     axs[0][0].scatter(risky.TOTAL, risky.Money_Value, color='red', alpha=0.1, label='Risk = 1')
@@ -45,15 +59,25 @@ def main():
     for patch, color in zip(bplot['boxes'], ('red', 'blue')):
         patch.set_facecolor(color)
 
-    fig2, axs3d = plt.subplots(2, projection='3d')
+    fig3d, axs3d = plt.subplots(2, subplot_kw={'projection':'3d'})
+    fig3d.suptitle('3D Graphs')
     
-    # 3D scatter plot for PARAM_A, Score_A, Risk_A, and Risk
-    axs3d[0].scatter(risky.PARAM_A, risky.Score_A, risky.Risk_A color='red', alpha=0.1, label='Risk = 1')
-    axs3d[0].scatter(safe.PARAM_A, safe.Score_A, safe.Risk_A color='red', alpha=0.1, label='Risk = 0')
+    # 3D scatter plot for PARA_A, Score_A, Risk_A, and Risk
+    axs3d[0].scatter(risky.PARA_A, risky.Score_A, risky.Risk_A, color='red', alpha=0.3, label='Risk = 1')
+    axs3d[0].scatter(safe.PARA_B, safe.Score_B, safe.Risk_B, color='blue', alpha=0.3, label='Risk = 0')
+
+    # 3D scatter plot for PARA_B, Score_B, Risk_B, and Risk
+    axs3d[1].scatter(risky.PARA_B, risky.Score_B, risky.Risk_B, color='red', alpha=0.3, label='Risk = 1')
+    axs3d[1].scatter(safe.PARA_B, safe.Score_B, safe.Risk_B, color='blue', alpha=0.3, label='Risk = 0')
+    
+    for ax3d, char in zip(axs3d, ('A','B')):
+        ax3d.set_xlabel(f'PARA_{char}')
+        ax3d.set_ylabel(f'Score_{char}')
+        ax3d.set_zlabel(f'Risk_{char}')
+        ax3d.legend()
 
     plt.show()
 
 
 if __name__ == '__main__':
     main()
-
