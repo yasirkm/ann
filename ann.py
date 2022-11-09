@@ -12,6 +12,8 @@ TARGET_COL = 'Risk'
 INPUT_COLS = COLUMNS.copy()
 INPUT_COLS.remove(TARGET_COL)
 
+LEARNING_RATE = 0.01
+
 def main():
     # Read data fuke
     data = preprocessed(DATA_PATH, COLUMNS)
@@ -21,7 +23,7 @@ def main():
     test_data = data.drop(train_data.index)
 
     # Instantiate Artificial Neural Network
-    ann = ArtificialNeuralNetwork(0.1, len(data.columns)-1)
+    ann = ArtificialNeuralNetwork(LEARNING_RATE, len(data.columns)-1)
 
     # Train Artificial Neural Network
     cumulative_errors = ann.train(train_data, INPUT_COLS, TARGET_COL, 1000)
@@ -93,10 +95,6 @@ class ArtificialNeuralNetwork:
         derror_dweights = derror_dprediction * dprediction_dlayer1 * dlayer1_dweights
 
         return derror_dbias, derror_dweights
-
-    def update_parameters(self, derror_dbias, derror_dweights):
-        self.bias -= derror_dbias*self.learning_rate
-        self.weights -= derror_dweights*self.learning_rate
 
     def update_bias(self, derror_dbias):
         self.bias = self.bias - derror_dbias*self.learning_rate
