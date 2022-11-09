@@ -67,7 +67,7 @@ class ArtificialNeuralNetwork:
 
     def predict(self, input_vector):
         '''
-            Return the output values from prediction process including layer_1, layer_2, and prediction.
+            Return prediction value.
             Uses 2 layer.
         '''
         layer1 = np.dot(input_vector, self.weights)
@@ -105,14 +105,16 @@ class ArtificialNeuralNetwork:
         self.weights = self.weights - derror_dweights*self.learning_rate
 
     def train(self, input_vectors, input_cols, target_col, iterations):
+        '''
+            Train the ann for a number of iterations.
+            Return cumulative errors for every 100 iteration.
+        '''
         cumulative_errors = []
         for current_iteration in range(1, iterations+1):
             # Pick a datapoint at random as input vector
-
             input_vector = input_vectors.sample(replace=True)
             target = input_vector[target_col].iloc[0]
             input_vector = input_vector[input_cols].to_numpy(dtype=np.float64)[0]
-
 
             # Compute the gradients
             derror_dbias, derror_dweights = self._compute_gradients(input_vector, target)
